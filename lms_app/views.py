@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from lms_app.forms import RegisterForm
 from django.contrib.auth import login, logout
+from lms_app.models import Student, Subject, Faculty
 
 
 def index(request):
@@ -40,3 +41,30 @@ def sign_up(request):
             return redirect('login')
         else:
             return render(request, 'registration/register.html', {'form': form})
+
+
+def subject_selection(request):
+    # temporary part, needs to be developed!
+    if request.method == 'POST' and request.POST.get('subject') is None:
+        student_id = request.POST.get('student_id')
+        try:
+            student = Student.objects.get(student_id=student_id)
+            faculty = student.faculty
+            subjects = Subject.objects.filter(faculties=faculty)
+            registered_subjects = student.subjects.all().values_list('id', flat=True)
+            available_subjects = subjects.exclude(id__in=registered_subjects)
+            return render(request, 'subject_selection.html', {'subjects': available_subjects})
+        except Student.DoesNotExist:
+            pass
+
+    if request.method == 'POST' and request.POST.get('subject') is not None:
+        student_name = request.user.username
+        student = Student.objects.get(first_name=student_name)
+        subject_name = request.POST.get('subject')
+        subject = Subject.objects.get(name=subject_name)
+        student.subjects.add(subject)
+        student.save()
+
+    return render(request, 'subject_selection.html', {'subjects': None})
+
+
