@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
+from django.core.validators import FileSizeValidator
 
 class Faculty(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Name"))
@@ -16,7 +16,7 @@ class Faculty(models.Model):
 class Subject(models.Model):
     name = models.CharField(max_length=200, verbose_name=_("Name"))
     description = models.TextField(verbose_name=_("Description"))
-    files = models.FileField(verbose_name=_("Files"))
+    files = models.FileField(verbose_name=_("Files"), validators=[FileSizeValidator(max_size=5 * 1024 * 1024)])
     faculties = models.ManyToManyField(Faculty, related_name='subjects', verbose_name=_("Faculties"))
 
     def __str__(self):
@@ -34,8 +34,8 @@ class Student(models.Model):
     subjects = models.ManyToManyField(Subject, related_name='students', verbose_name=_("Subjects"))
     first_name = models.CharField(max_length=50, verbose_name=_("First Name"))
     last_name = models.CharField(max_length=50, verbose_name=_("Last Name"))
-    dob = models.DateField(verbose_name=_("Date of Birth"))
-    email = models.EmailField(verbose_name=_("Email"))
+    dob = models.DateField(verbose_name=_("Date of Birth"), blank=False)
+    email = models.EmailField(verbose_name=_("Email"), blank=False)
 
     def __str__(self):
         return self.first_name + " " + self.last_name

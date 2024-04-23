@@ -16,6 +16,13 @@ class SubjectAdmin(admin.ModelAdmin):
     list_filter = ('name', 'faculties')
     search_fields = ('name',)
 
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name == 'files':
+            kwargs['widget'].attrs['maxlength'] = 1024 * 1024 * 10 
+        return super().formfield_for_dbfield(db_field, **kwargs)
+
+
+
 
 admin.site.register(Subject, SubjectAdmin)
 
