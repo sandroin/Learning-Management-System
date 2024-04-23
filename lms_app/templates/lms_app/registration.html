@@ -1,0 +1,44 @@
+{% extends 'lms_app/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Register</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div>
+            <strong>Password Strength:</strong>
+            <div id="password-strength">Please enter a password.</div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top: 8px;">Register</button>
+    </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const passwordInput = document.getElementById('password-input');
+        const passwordStrengthField = document.getElementById('password-strength');
+
+        passwordInput.addEventListener('input', function () {
+            const password = passwordInput.value;
+            const result = zxcvbn(password);
+
+            // Update password strength feedback
+            passwordStrengthField.innerHTML = ''; // Clear previous feedback
+
+            if (result.score === 0) {
+                passwordStrengthField.innerHTML = '<span style="color: red;">Very Weak</span>';
+            } else if (result.score === 1) {
+                passwordStrengthField.innerHTML = '<span style="color: orange;">Weak</span>';
+            } else if (result.score === 2) {
+                passwordStrengthField.innerHTML = '<span style="color: yellow;">Medium</span>';
+            } else if (result.score === 3) {
+                passwordStrengthField.innerHTML = '<span style="color: green;">Strong</span>';
+            } else if (result.score === 4) {
+                passwordStrengthField.innerHTML = '<span style="color: darkgreen;">Very Strong</span>';
+            }
+        });
+    });
+</script>
+{% endblock %}

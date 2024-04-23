@@ -1,0 +1,23 @@
+{% extends 'lms_app/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 mx-auto text-center">
+            <div class="card">
+                <div class="card-header">
+                    <h2>You have been logged out</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Thank you for using our service. If you'd like to continue, please log in again.</p>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">
+                        <a href="{% url 'login' %}" class="btn btn-primary">Log In Again</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
