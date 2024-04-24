@@ -1,9 +1,10 @@
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.shortcuts import render, redirect
-from lms_app.forms import RegisterForm
+from django.shortcuts import render, redirect, get_object_or_404
+from lms_app.forms import RegisterForm, CheckRegisteredUserForm
 from django.contrib.auth import login, logout
+from lms_app.models import Student, Lecturer, CustomUser
 
 
 def index(request):
@@ -25,15 +26,18 @@ def logout_view(request):
 
 
 def sign_up(request):
+    form = RegisterForm()
     if request.method == 'GET':
-        form = RegisterForm()
         return render(request, 'registration/register.html', {'form': form})
 
     if request.method == 'POST':
-        form = RegisterForm(request.POST)
+        user = get_object_or_404(CustomUser, email=request.POST.get('email'))
+        form = CheckRegisteredUserForm(request.POST, instance=user)
         if form.is_valid():
+            user.is_active = True
             user = form.save(commit=False)
             user.save()
+
             messages.success(request, 'You have singed up successfully.')
             login(request, user)
             return redirect('login')

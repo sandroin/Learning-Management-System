@@ -46,13 +46,11 @@ class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
-        # extra_fields.setdefault('is_active', False)
         return self._create_user(email, password, **extra_fields)
 
     def create_superuser(self, email, password, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        # extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('status', 1)
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
@@ -69,7 +67,15 @@ class CustomUser(AbstractUser):
         lecturer = 1, _("Lecturer")
         student = 2, _("Student")
 
-    status = models.PositiveSmallIntegerField(choices=Status.choices)
+    status = models.PositiveSmallIntegerField(choices=Status.choices, default=Status.student)
+    is_active = models.BooleanField(
+        _('active'),
+        default=False,
+        help_text=_(
+            'Designates whether this user should be treated as active. '
+            'Unselect this instead of deleting accounts.'
+        ),
+    )
 
     objects = CustomUserManager()
     USERNAME_FIELD = 'email'
@@ -77,13 +83,6 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
-
-    # def save(self, *args, **kwargs):
-    #     # Set is_active to False if it's not provided explicitly
-    #     if self._state.adding and kwargs.get('is_superuser') is False and 'is_active' not in kwargs:
-    #         self.is_active = False
-    #
-    #     super().save(*args, **kwargs)
 
 
 class Student(models.Model):
