@@ -121,3 +121,28 @@
     </div>
 </body>
 </html>
+</head>
+<body>
+    <h1>Student Registration</h1>
+    <div class="center">
+	  <form method="POST">
+        {% csrf_token %}
+        <h2>Sign Up</h2>
+        {% for field in form %}
+        <p>
+            {% if field.errors %}
+            <ul>
+                {% for error in field.errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {{ field.label_tag }} {{ field }}
+        {% endfor %}
+      <br>
+        <input type="submit" value="Register" />
+        <a href="{%url 'login' %}">Log in</a>
+      </form>
+    </div>
+</body>
+</html>
