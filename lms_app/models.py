@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import FileSizeValidator
 
 class Faculty(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Name"))
@@ -16,7 +15,7 @@ class Faculty(models.Model):
 class Subject(models.Model):
     name = models.CharField(max_length=200, verbose_name=_("Name"))
     description = models.TextField(verbose_name=_("Description"))
-    files = models.FileField(verbose_name=_("Files"), validators=[FileSizeValidator(max_size=5 * 1024 * 1024)])
+    files = models.FileField(verbose_name=_("Files"),)
     faculties = models.ManyToManyField(Faculty, related_name='subjects', verbose_name=_("Faculties"))
 
     def __str__(self):
