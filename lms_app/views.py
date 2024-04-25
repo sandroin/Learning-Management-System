@@ -49,15 +49,13 @@ def subject_selection(request):
     # temporary part, needs to be developed!
     if request.method == 'POST' and request.POST.get('subject') is None:
         student_id = request.POST.get('student_id')
-        try:
-            student = Student.objects.get(student_id=student_id)
-            faculty = student.faculty
-            subjects = Subject.objects.filter(faculties=faculty)
-            registered_subjects = student.subjects.all().values_list('id', flat=True)
-            available_subjects = subjects.exclude(id__in=registered_subjects)
-            return render(request, 'subject_selection.html', {'subjects': available_subjects})
-        except Student.DoesNotExist:
-            pass
+        student = get_object_or_404(Student, student_id=student_id)
+        faculty = student.faculty
+        subjects = Subject.objects.filter(faculties=faculty)
+        registered_subjects = student.subjects.all().values_list('id', flat=True)
+        available_subjects = subjects.exclude(id__in=registered_subjects)
+
+        return render(request, 'subject_selection.html', {'subjects': available_subjects})
 
     if request.method == 'POST' and request.POST.get('subject') is not None:
         student_name = request.user.username
