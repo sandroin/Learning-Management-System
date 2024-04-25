@@ -1,3 +1,5 @@
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from django.contrib import messages
@@ -66,5 +68,30 @@ def subject_selection(request):
         student.save()
 
     return render(request, 'subject_selection.html', {'subjects': None})
+
+@login_required
+def create_task(request):
+    if request.method == 'POST':
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.lecturer = request.user
+
+            if task.execution_date < timezone.now().date():
+                form.add_error('execution_date', 'Execution date must be in the future.')
+                return render(request, 'create_task.html', {'form': form})
+
+            task.save()
+            messages.success(request, 'Task created successfully.')
+            return redirect('task_list')
+    else:
+        form = TaskForm()
+    return render(request, 'create_task.html', {'form': form})
+
+
+def task_list(request):
+    tasks = request.user.tasks.all()
+    return render(request, 'task_list.html', {'tasks': tasks})
+
 
 
