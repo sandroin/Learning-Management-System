@@ -1,10 +1,8 @@
-from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import validate_email
 from django.db import models
-from django.db.models import IntegerChoices
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import FileSizeValidator
+from custom_user.models import CustomUser
+
 
 class Faculty(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Name"))
@@ -20,7 +18,7 @@ class Faculty(models.Model):
 class Subject(models.Model):
     name = models.CharField(max_length=200, verbose_name=_("Name"))
     description = models.TextField(verbose_name=_("Description"))
-    files = models.FileField(verbose_name=_("Files"), validators=[FileSizeValidator(max_size=5 * 1024 * 1024)])
+    files = models.FileField(verbose_name=_("Files"))
     faculties = models.ManyToManyField(Faculty, related_name='subjects', verbose_name=_("Faculties"))
 
     def __str__(self):
@@ -30,59 +28,6 @@ class Subject(models.Model):
         verbose_name = _("Subject")
         verbose_name_plural = _("Subjects")
         ordering = ['name']
-
-
-class CustomUserManager(BaseUserManager):
-    use_in_migrations = True
-
-    def _create_user(self, email, password, **extra_fields):
-        validate_email(email)
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_user(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', False)
-        extra_fields.setdefault('is_superuser', False)
-        return self._create_user(email, password, **extra_fields)
-
-    def create_superuser(self, email, password, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('status', 1)
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-        return self._create_user(email, password, **extra_fields)
-
-
-class CustomUser(AbstractUser):
-    username = None
-    email = models.EmailField(_('Email Address'), unique=True)
-
-    class Status(IntegerChoices):
-        lecturer = 1, _("Lecturer")
-        student = 2, _("Student")
-
-    status = models.PositiveSmallIntegerField(choices=Status.choices, default=Status.student)
-    is_active = models.BooleanField(
-        _('active'),
-        default=False,
-        help_text=_(
-            'Designates whether this user should be treated as active. '
-            'Unselect this instead of deleting accounts.'
-        ),
-    )
-
-    objects = CustomUserManager()
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
-
-    def __str__(self):
-        return self.email
 
 
 class Student(models.Model):
@@ -101,7 +46,6 @@ class Student(models.Model):
     email = models.EmailField(verbose_name=_("Email"), blank=False)
     password = models.CharField(max_length=50, verbose_name=_("Password"))
 
-    
     def __str__(self):
         return self.first_name + " " + self.last_name
 
@@ -118,7 +62,6 @@ class Lecturer(models.Model):
         verbose_name=_("Lecturer"),
         related_name="lecturer"
     )
-    id = models.AutoField(primary_key=True, verbose_name=_("ID"))
     first_name = models.CharField(max_length=50, verbose_name=_("First Name"))
     last_name = models.CharField(max_length=50, verbose_name=_("Last Name"))
     subjects = models.ManyToManyField(Subject, related_name='lecturers', verbose_name=_("Subjects"))
