@@ -1,76 +1,95 @@
-from django.contrib.auth.models import AbstractUser
-from django.db import models
-from django.utils.translation import gettext_lazy as _
-from custom_user.models import CustomUser
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView
+from django.urls import reverse_lazy
+from django.contrib import messages
+from django.shortcuts import render, redirect, get_object_or_404
+from lms_app.forms import RegisterForm, CheckRegisteredUserForm, TaskForm
+from django.contrib.auth import login, logout
+from lms_app.models import Student, Lecturer, CustomUser, Subject, Faculty
 
 
-class Faculty(models.Model):
-    name = models.CharField(max_length=100, verbose_name=_("Name"))
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = _("Faculty")
-        verbose_name_plural = _("Faculties")
+def index(request):
+    return render(request, 'index.html')
 
 
-class Subject(models.Model):
-    name = models.CharField(max_length=200, verbose_name=_("Name"))
-    description = models.TextField(verbose_name=_("Description"))
-    files = models.FileField(verbose_name=_("Files"))
-    faculties = models.ManyToManyField(Faculty, related_name='subjects', verbose_name=_("Faculties"))
+class CustomLoginView(LoginView):
+    def get_success_url(self):
+        return reverse_lazy('index')
 
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = _("Subject")
-        verbose_name_plural = _("Subjects")
-        ordering = ['name']
+    def form_invalid(self, form):
+        messages.error(self.request, 'Invalid email or password')
+        return self.render_to_response(self.get_context_data(form=form))
 
 
-class Student(models.Model):
-    user = models.OneToOneField(
-        CustomUser,
-        on_delete=models.CASCADE,
-        verbose_name=_("Student"),
-        related_name="student"
-    )
-    student_id = models.AutoField(primary_key=True, verbose_name=_("Student ID"))
-    faculty = models.ForeignKey(Faculty, on_delete=models.RESTRICT, verbose_name=_("Faculty"))
-    subjects = models.ManyToManyField(Subject, related_name='students', verbose_name=_("Subjects"))
-    first_name = models.CharField(max_length=50, verbose_name=_("First Name"))
-    last_name = models.CharField(max_length=50, verbose_name=_("Last Name"))
-    dob = models.DateField(verbose_name=_("Date of Birth"), blank=False)
-    email = models.EmailField(verbose_name=_("Email"), blank=False)
-    password = models.CharField(max_length=50, verbose_name=_("Password"))
-
-    def __str__(self):
-        return self.first_name + " " + self.last_name
-
-    class Meta:
-        verbose_name = _("Student")
-        verbose_name_plural = _("Students")
-        ordering = ['student_id']
+def logout_view(request):
+    logout(request)
+    return redirect('login')
 
 
-class Lecturer(models.Model):
-    user = models.OneToOneField(
-        CustomUser,
-        on_delete=models.CASCADE,
-        verbose_name=_("Lecturer"),
-        related_name="lecturer"
-    )
-    first_name = models.CharField(max_length=50, verbose_name=_("First Name"))
-    last_name = models.CharField(max_length=50, verbose_name=_("Last Name"))
-    subjects = models.ManyToManyField(Subject, related_name='lecturers', verbose_name=_("Subjects"))
-    password = models.CharField(max_length=50, verbose_name=_("Password"))
+def sign_up(request):
+    form = RegisterForm()
+    if request.method == 'GET':
+        return render(request, 'registration/register.html', {'form': form})
 
-    def __str__(self):
-        return self.first_name + " " + self.last_name
+    if request.method == 'POST':
+        user = get_object_or_404(CustomUser, email=request.POST.get('email'))
+        form = CheckRegisteredUserForm(request.POST, instance=user)
+        if form.is_valid():
+            user.is_active = True
+            user = form.save(commit=False)
+            user.save()
 
-    class Meta:
-        verbose_name = _("Lecturer")
-        verbose_name_plural = _("Lecturers")
-        ordering = ['id']
+            messages.success(request, 'You have singed up successfully.')
+            login(request, user)
+            return redirect('login')
+        else:
+            return render(request, 'registration/register.html', {'form': form})
+
+
+def subject_selection(request):
+    # temporary part, needs to be developed!
+    if request.method == 'POST' and request.POST.get('subject') is None:
+        student_id = request.POST.get('student_id')
+        student = get_object_or_404(Student, student_id=student_id)
+        faculty = student.faculty
+        subjects = Subject.objects.filter(faculties=faculty)
+        registered_subjects = student.subjects.all().values_list('id', flat=True)
+        available_subjects = subjects.exclude(id__in=registered_subjects)
+
+        return render(request, 'subject_selection.html', {'subjects': available_subjects})
+
+    if request.method == 'POST' and request.POST.get('subject') is not None:
+        student_name = request.user.username
+        student = Student.objects.get(first_name=student_name)
+        subject_name = request.POST.get('subject')
+        subject = Subject.objects.get(name=subject_name)
+        student.subjects.add(subject)
+        student.save()
+
+    return render(request, 'subject_selection.html', {'subjects': None})
+
+
+@login_required
+def create_task(request):
+    if request.method == 'POST':
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.lecturer = request.user
+
+            if task.execution_date < timezone.now().date():
+                form.add_error('execution_date', 'Execution date must be in the future.')
+                return render(request, 'create_task.html', {'form': form})
+
+            task.save()
+            messages.success(request, 'Task created successfully.')
+            return redirect('task_list')
+    else:
+        form = TaskForm()
+    return render(request, 'create_task.html', {'form': form})
+
+
+def task_list(request):
+    tasks = request.user.tasks.all()
+    return render(request, 'task_list.html', {'tasks': tasks})
