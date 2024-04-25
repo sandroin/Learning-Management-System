@@ -18,3 +18,9 @@ class CheckRegisteredUserForm(UserChangeForm):
     class Meta:
         model = CustomUser
         fields = ('email', 'password')
+
+
+class TaskForm(forms.ModelForm):
+    class Meta:
+        model = Task
+        fields = ['title', 'description', 'execution_date']
