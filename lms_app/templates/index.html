@@ -19,6 +19,9 @@
                 {% if user.status == 1 %}
                     <a href="{% url 'select_subject' %}" style="color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 5px; margin: 0 10px; background-color: #ff9be6;">Select Subject</a>
                 {% endif %}
+                {% if user.status == 2 %}
+                    <a href="{% url 'subject_selection_url' %}" style="color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 5px; margin: 0 10px; background-color: #ff9be6;">Subject Registration</a>
+                {% endif %}
             {% else %}
                 <a href="{% url 'login' %}" style="color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 5px; margin: 0 10px; background-color: #ff9be6;">Login</a>
                 <a href="{% url 'register' %}" style="color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 5px; margin: 0 10px; background-color: #ff9be6;">Join Now</a>

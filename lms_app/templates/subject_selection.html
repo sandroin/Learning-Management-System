@@ -7,14 +7,6 @@
 </head>
 <body>
     <h1>Subject Selection</h1>
-
-    <form method="post" action="{% url 'subject_selection_url' %}">
-        {% csrf_token %}
-        <label for="student_id">Enter Student ID:</label>
-        <input type="text" id="student_id" name="student_id">
-        <button type="submit">Submit</button>
-    </form>
-
     {% if subjects %}
         <h2>Available Subjects</h2>
         <form method="post" action="{% url 'subject_selection_url' %}">
@@ -27,6 +19,8 @@
             </select>
             <button type="submit">Register</button>
         </form>
+    {% else %}
+        <p>No Subjects to Register</p>
     {% endif %}
 </body>
 </html>

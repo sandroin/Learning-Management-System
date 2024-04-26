@@ -16,10 +16,10 @@ class Faculty(models.Model):
 
 
 class Subject(models.Model):
+    faculties = models.ManyToManyField(Faculty, related_name='subjects', verbose_name=_("Faculties"))
     name = models.CharField(max_length=200, verbose_name=_("Name"))
     description = models.TextField(verbose_name=_("Description"))
     files = models.FileField(verbose_name=_("Files"))
-    faculties = models.ManyToManyField(Faculty, related_name='subjects', verbose_name=_("Faculties"))
 
     def __str__(self):
         return self.name
@@ -62,9 +62,9 @@ class Lecturer(models.Model):
         verbose_name=_("Lecturer"),
         related_name="lecturer"
     )
+    subjects = models.ManyToManyField(Subject, related_name='lecturers', verbose_name=_("Subjects"))
     first_name = models.CharField(max_length=50, verbose_name=_("First Name"))
     last_name = models.CharField(max_length=50, verbose_name=_("Last Name"))
-    subjects = models.ManyToManyField(Subject, related_name='lecturers', verbose_name=_("Subjects"))
     password = models.CharField(max_length=50, verbose_name=_("Password"))
 
     def __str__(self):
@@ -77,10 +77,10 @@ class Lecturer(models.Model):
 
 
 class AttendanceRecord(models.Model):
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    date = models.DateField()
     lecturer = models.ForeignKey(Lecturer, on_delete=models.CASCADE)
     students = models.ManyToManyField(Student, related_name='attendance_records')
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    date = models.DateField()
 
 
 class Task(models.Model):

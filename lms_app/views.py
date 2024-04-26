@@ -1,14 +1,12 @@
 from django.contrib.auth.views import LoginView
-from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from lms_app.forms import RegisterForm, CheckRegisteredUserForm, TaskForm
 from django.contrib.auth import login, logout
-from lms_app.models import Student, Lecturer, CustomUser, Subject, Faculty
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from lms_app.models import Student, Lecturer, CustomUser, Subject, Faculty, AttendanceRecord
+from lms_app.models import Student, Lecturer, CustomUser, Subject, AttendanceRecord
 
 
 def index(request):
@@ -50,26 +48,28 @@ def sign_up(request):
 
 
 def subject_selection(request):
-    # temporary part, needs to be developed!
-    if request.method == 'POST' and request.POST.get('subject') is None:
-        student_id = request.POST.get('student_id')
-        student = get_object_or_404(Student, student_id=student_id)
+    if request.method == 'POST':
+        student = get_object_or_404(Student, email=request.user.email)
+
         faculty = student.faculty
         subjects = Subject.objects.filter(faculties=faculty)
         registered_subjects = student.subjects.all().values_list('id', flat=True)
         available_subjects = subjects.exclude(id__in=registered_subjects)
 
-        return render(request, 'subject_selection.html', {'subjects': available_subjects})
+        if 'subject' in request.POST:
+            subject_name = request.POST.get('subject')
+            subject = Subject.objects.get(name=subject_name)
+            student.subjects.add(subject)
+            student.save()
 
-    if request.method == 'POST' and request.POST.get('subject') is not None:
-        student_name = request.user.username
-        student = Student.objects.get(first_name=student_name)
-        subject_name = request.POST.get('subject')
-        subject = Subject.objects.get(name=subject_name)
-        student.subjects.add(subject)
-        student.save()
+    else:
+        student = get_object_or_404(Student, email="sand@gmail.com")
+        faculty = student.faculty
+        subjects = Subject.objects.filter(faculties=faculty)
+        registered_subjects = student.subjects.all().values_list('id', flat=True)
+        available_subjects = subjects.exclude(id__in=registered_subjects)
 
-    return render(request, 'subject_selection.html', {'subjects': None})
+    return render(request, 'subject_selection.html', {'subjects': available_subjects})
 
 
 def select_subject(request):
