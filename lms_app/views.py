@@ -3,8 +3,11 @@ from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from lms_app.forms import RegisterForm, CheckRegisteredUserForm
+from lms_app.forms import RegisterForm, CheckRegisteredUserForm, TaskForm
 from django.contrib.auth import login, logout
+from lms_app.models import Student, Lecturer, CustomUser, Subject, Faculty
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 from lms_app.models import Student, Lecturer, CustomUser, Subject, Faculty, AttendanceRecord
 
 
@@ -92,3 +95,26 @@ def record_attendance(request, subject_id):
     return render(request, 'attendance.html', {'subject': subject, 'students': students})
 
 
+@login_required
+def create_task(request):
+    if request.method == 'POST':
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.lecturer = request.user
+
+            if task.execution_date < timezone.now().date():
+                form.add_error('execution_date', 'Execution date must be in the future.')
+                return render(request, 'create_task.html', {'form': form})
+
+            task.save()
+            messages.success(request, 'Task created successfully.')
+            return redirect('task_list')
+    else:
+        form = TaskForm()
+    return render(request, 'create_task.html', {'form': form})
+
+
+def task_list(request):
+    tasks = request.user.tasks.all()
+    return render(request, 'task_list.html', {'tasks': tasks})

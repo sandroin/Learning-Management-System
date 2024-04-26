@@ -81,3 +81,18 @@ class AttendanceRecord(models.Model):
     date = models.DateField()
     lecturer = models.ForeignKey(Lecturer, on_delete=models.CASCADE)
     students = models.ManyToManyField(Student, related_name='attendance_records')
+
+
+class Task(models.Model):
+    lecturer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='tasks')
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    execution_date = models.DateField()
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = "Task"
+        verbose_name_plural = "Tasks"
+        ordering = ['execution_date']
