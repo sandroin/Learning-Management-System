@@ -1,10 +1,11 @@
 from django.contrib.auth.views import LoginView
+from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from lms_app.forms import RegisterForm, CheckRegisteredUserForm
 from django.contrib.auth import login, logout
-from lms_app.models import Student, Lecturer, CustomUser, Subject, Faculty
+from lms_app.models import Student, Lecturer, CustomUser, Subject, Faculty, AttendanceRecord
 
 
 def index(request):
@@ -66,5 +67,28 @@ def subject_selection(request):
         student.save()
 
     return render(request, 'subject_selection.html', {'subjects': None})
+
+
+def select_subject(request):
+    subjects = Subject.objects.all()
+    return render(request, 'select_subject.html', {'subjects': subjects})
+
+
+def record_attendance(request, subject_id):
+    subject = get_object_or_404(Subject, pk=subject_id)
+    students = subject.students.all()
+    if request.method == 'POST':
+        selected_student_emails = request.POST.getlist('selected_students')
+        selected_students = Student.objects.filter(email__in=selected_student_emails)
+        date = request.POST.get('date')
+        lecturer = Lecturer.objects.get(user=request.user)
+        attendance_record = AttendanceRecord.objects.create(
+            subject=subject,
+            date=date,
+            lecturer=lecturer
+        )
+        attendance_record.students.set(selected_students)
+        return redirect('index')
+    return render(request, 'attendance.html', {'subject': subject, 'students': students})
 
 

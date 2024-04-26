@@ -74,3 +74,10 @@ class Lecturer(models.Model):
         verbose_name = _("Lecturer")
         verbose_name_plural = _("Lecturers")
         ordering = ['id']
+
+
+class AttendanceRecord(models.Model):
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    date = models.DateField()
+    lecturer = models.ForeignKey(Lecturer, on_delete=models.CASCADE)
+    students = models.ManyToManyField(Student, related_name='attendance_records')
