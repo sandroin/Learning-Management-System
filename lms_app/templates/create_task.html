@@ -4,13 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Task</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 500px;
+            margin: 100px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #ff9be6;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        form {
+            margin-top: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: 600;
+        }
+        textarea.form-control {
+            height: 150px; /* Adjust the height as needed */
+        }
+        button[type="submit"] {
+            background-color: #ff9be6;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button[type="submit"]:hover {
+            background-color: #ff9be6;
+        }
+    </style>
 </head>
 <body>
-    <h1>Create Task</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Create</button>
-    </form>
+    <div class="container">
+        <h1>Create Task</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_task_description">Task Description:</label>
+                <textarea class="form-control" id="id_task_description" name="task_description" rows="5"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="id_date_of_performance">Date of Performance:</label>
+                <input type="date" class="form-control" id="id_date_of_performance" name="date_of_performance">
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+    </div>
 </body>
 </html>
