@@ -48,32 +48,24 @@ def sign_up(request):
 
 
 def subject_selection(request):
-    if request.method == 'POST':
-        student = get_object_or_404(Student, email=request.user.email)
+    student = get_object_or_404(Student, email=request.user.email)
+    faculty = student.faculty
+    subjects = Subject.objects.filter(faculties=faculty)
+    registered_subjects = student.subjects.all().values_list('id', flat=True)
+    available_subjects = subjects.exclude(id__in=registered_subjects)
 
-        faculty = student.faculty
-        subjects = Subject.objects.filter(faculties=faculty)
-        registered_subjects = student.subjects.all().values_list('id', flat=True)
-        available_subjects = subjects.exclude(id__in=registered_subjects)
-
-        if 'subject' in request.POST:
-            subject_name = request.POST.get('subject')
-            subject = Subject.objects.get(name=subject_name)
-            student.subjects.add(subject)
-            student.save()
-
-    else:
-        student = get_object_or_404(Student, email="sand@gmail.com")
-        faculty = student.faculty
-        subjects = Subject.objects.filter(faculties=faculty)
-        registered_subjects = student.subjects.all().values_list('id', flat=True)
-        available_subjects = subjects.exclude(id__in=registered_subjects)
+    if request.method == 'POST' and 'subject' in request.POST:
+        subject_name = request.POST.get('subject')
+        subject = Subject.objects.get(name=subject_name)
+        student.subjects.add(subject)
+        student.save()
+        messages.success(request, f'{subject_name} has been added to your subjects.')
 
     return render(request, 'subject_selection.html', {'subjects': available_subjects})
 
 
 def select_subject(request):
-    subjects = Subject.objects.all()
+    subjects = Subject.objects.filter(lecturers__user=request.user)
     return render(request, 'select_subject.html', {'subjects': subjects})
 
 
@@ -99,14 +91,13 @@ def record_attendance(request, subject_id):
 def create_task(request):
     if request.method == 'POST':
         form = TaskForm(request.POST)
+        print(form.errors)
         if form.is_valid():
             task = form.save(commit=False)
             task.lecturer = request.user
-
             if task.execution_date < timezone.now().date():
                 form.add_error('execution_date', 'Execution date must be in the future.')
                 return render(request, 'create_task.html', {'form': form})
-
             task.save()
             messages.success(request, 'Task created successfully.')
             return redirect('task_list')
@@ -119,12 +110,13 @@ def task_list(request):
     tasks = request.user.tasks.all()
     return render(request, 'task_list.html', {'tasks': tasks})
 
+
 @login_required
 def submit_task(request, task_id):
     task = get_object_or_404(Task, pk=task_id)
 
     if task.execution_date < timezone.now().date():
-        messages.error("Deadline has passed. You cannot submit the task.")
+        messages.error(request, "Deadline has passed. You cannot submit the task.")
 
     if request.method == 'POST':
         form = TaskSubmissionForm(request.POST, request.FILES)
@@ -137,4 +129,3 @@ def submit_task(request, task_id):
     else:
         form = TaskSubmissionForm()
     return render(request, 'submit_task.html', {'form': form})
-

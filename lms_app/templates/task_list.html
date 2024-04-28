@@ -46,14 +46,19 @@
 <body>
     <div class="container">
         <h1>Task List</h1>
-        <ul>
-            {% for task in tasks %}
-                <li>
-                    <div class="task-title">{{ task.title }}</div>
-                    <div class="execution-date">Execution Date: {{ task.execution_date }}</div>
-                </li>
-            {% endfor %}
-        </ul>
+        {% if tasks %}
+            <ul>
+                {% for task in tasks %}
+                    <li>
+                        <div class="task-title">{{ task.title }}</div>
+                        <div class="execution-date">Execution Date: {{ task.execution_date }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No tasks found.</p>
+            <p>Create a new task <a href={% url 'create_task' %}>here</a>.</p>
+        {% endif %}
     </div>
 </body>
 </html>

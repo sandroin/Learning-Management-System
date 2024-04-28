@@ -47,23 +47,63 @@
         button[type="submit"]:hover {
             background-color: #ff9be6;
         }
+        button[type="button"] {
+            background-color: #ff9be6;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button[type="button"]:hover {
+            background-color: #ff9be6;
+        }
+        .form-btn-group {
+            display: flex;
+            justify-content: space-between;
+        }
+        .un-auth-group {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .un-auth-group a{ 
+            text-decoration: none;
+            color: inherit;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Create Task</h1>
-        <form method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="id_task_description">Task Description:</label>
-                <textarea class="form-control" id="id_task_description" name="task_description" rows="5"></textarea>
+        {% if user.is_lecturer %}
+            <h1>Create Task</h1>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_title">Title:</label>
+                    <input class="form-control" id="id_title" name="title"/>
+                </div>
+                <div class="form-group">
+                    <label for="id_task_description">Task Description:</label>
+                    <textarea class="form-control" id="id_task_description" name="description" rows="5"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="id_execution_date">Execution Date:</label>
+                    <input type="date" class="form-control" id="id_execution_date" name="execution_date">
+                </div>
+                <div class="form-btn-group">
+                    <button type="submit" class="btn btn-primary">Create</button>
+                    <a href="{% url "task_list" %}"><button type="button" class="btn btn-primary">Task List</button></a>
+                </div>
+            </form>
+        {% else %}
+            <div class="un-auth-group">
+                <h1>You are not authorized to view this page!</h1>
+                <button type="button" class="btn btn-primary"><a href="{% url "index" %}">Home Page</a></button>
             </div>
-            <div class="form-group">
-                <label for="id_date_of_performance">Date of Performance:</label>
-                <input type="date" class="form-control" id="id_date_of_performance" name="date_of_performance">
-            </div>
-            <button type="submit" class="btn btn-primary">Create</button>
-        </form>
+        {% endif %}
     </div>
 </body>
 </html>
