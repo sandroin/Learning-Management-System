@@ -2,11 +2,11 @@ from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from lms_app.forms import RegisterForm, CheckRegisteredUserForm, TaskForm
+from lms_app.forms import RegisterForm, CheckRegisteredUserForm, TaskForm, TaskSubmissionForm
 from django.contrib.auth import login, logout
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from lms_app.models import Student, Lecturer, CustomUser, Subject, AttendanceRecord
+from lms_app.models import Student, Lecturer, CustomUser, Subject, AttendanceRecord, Task
 
 
 def index(request):
@@ -118,3 +118,23 @@ def create_task(request):
 def task_list(request):
     tasks = request.user.tasks.all()
     return render(request, 'task_list.html', {'tasks': tasks})
+
+@login_required
+def submit_task(request, task_id):
+    task = get_object_or_404(Task, pk=task_id)
+
+    if task.execution_date < timezone.now().date():
+        messages.error("Deadline has passed. You cannot submit the task.")
+
+    if request.method == 'POST':
+        form = TaskSubmissionForm(request.POST, request.FILES)
+        if form.is_valid():
+            task.submission_file = form.cleaned_data['submission_file']
+            task.submission_description = form.cleaned_data['submission_description']
+            task.save()
+            messages.success(request, 'Task submitted successfully.')
+            return redirect('task_list')
+    else:
+        form = TaskSubmissionForm()
+    return render(request, 'submit_task.html', {'form': form})
+
