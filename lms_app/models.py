@@ -96,6 +96,8 @@ class Task(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     execution_date = models.DateField()
+    submission_file = models.FileField(upload_to='task_submissions/', null=True, blank=True)
+    submission_description = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.title
