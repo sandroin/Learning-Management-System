@@ -77,10 +77,18 @@ class Lecturer(models.Model):
 
 
 class AttendanceRecord(models.Model):
-    lecturer = models.ForeignKey(Lecturer, on_delete=models.CASCADE)
-    students = models.ManyToManyField(Student, related_name='attendance_records')
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    date = models.DateField()
+    lecturer = models.ForeignKey(Lecturer, on_delete=models.CASCADE, verbose_name=_('Lecturer'))
+    students = models.ManyToManyField(Student, related_name='attendance_records', verbose_name=_("Students"))
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, verbose_name=_('Subject'))
+    date = models.DateField(verbose_name=_("Date"))
+
+    def __str__(self):
+        return "Attendance of " + str(self.subject) + " on " + str(self.date)
+
+    class Meta:
+        verbose_name = "Attendance Record"
+        verbose_name_plural = "Attendance Records"
+        ordering = ['date']
 
 
 class Task(models.Model):
