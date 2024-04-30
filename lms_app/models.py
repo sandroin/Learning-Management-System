@@ -32,7 +32,7 @@ class Subject(models.Model):
 
 class Student(models.Model):
     user = models.OneToOneField(
-        CustomUser,
+        to="custom_user.CustomUser",
         on_delete=models.CASCADE,
         verbose_name=_("Student"),
         related_name="student"
@@ -57,7 +57,7 @@ class Student(models.Model):
 
 class Lecturer(models.Model):
     user = models.OneToOneField(
-        CustomUser,
+        to="custom_user.CustomUser",
         on_delete=models.CASCADE,
         verbose_name=_("Lecturer"),
         related_name="lecturer"
