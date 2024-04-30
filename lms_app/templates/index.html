@@ -16,10 +16,10 @@
             {% if user.is_authenticated %}
                 <a href="#" style="color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 5px; margin: 0 10px; background-color: #ff9be6;">Hi {{ request.user | title }}</a>
                 <a href="{% url 'logout' %}" style="color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 5px; margin: 0 10px; background-color: #ff9be6;">Logout</a>
-                {% if user.is_lecturer %}
+                {% if user.status == 1 %}
                     <a href="{% url 'select_subject' %}" style="color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 5px; margin: 0 10px; background-color: #ff9be6;">Select Subject</a>
                 {% endif %}
-                {% if user.is_student %}
+                {% if user.status == 2 %}
                     <a href="{% url 'subject_selection_url' %}" style="color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 5px; margin: 0 10px; background-color: #ff9be6;">Subject Registration</a>
                 {% endif %}
             {% else %}

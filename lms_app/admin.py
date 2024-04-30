@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from lms_app.models import Faculty, Subject, Student, Lecturer, CustomUser, AttendanceRecord, Task
+from lms_app.models import Faculty, Subject, Student, Lecturer, CustomUser, AttendanceRecord
 from django.utils.translation import gettext_lazy as _
 
 
@@ -39,13 +39,6 @@ class AttendanceRecordAdmin(admin.ModelAdmin):
     search_fields = ('subject__name', 'date', 'lecturer__first_name', 'lecturer__last_name')
 
     filter_horizontal = ('students',)
-
-
-@admin.register(Task)
-class TaskAdmin(admin.ModelAdmin):
-    list_display = ('lecturer', 'title', 'description', 'execution_date')
-    list_filter = ('lecturer', 'execution_date')
-    search_fields = ('lecturer__first_name', 'lecturer__last_name', 'title', 'description', 'execution_date')
 
 
 @admin.register(CustomUser)

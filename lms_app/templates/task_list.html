@@ -4,61 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task List</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        h1 {
-            color: #ff9be6;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            background-color: #fff;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .task-title {
-            font-weight: bold;
-            color: #333;
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-        .execution-date {
-            color: #666;
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Task List</h1>
-        {% if tasks %}
-            <ul>
-                {% for task in tasks %}
-                    <li>
-                        <div class="task-title">{{ task.title }}</div>
-                        <div class="execution-date">Execution Date: {{ task.execution_date }}</div>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No tasks found.</p>
-            <p>Create a new task <a href={% url 'create_task' %}>here</a>.</p>
-        {% endif %}
-    </div>
+    <h1>Task List</h1>
+    <ul>
+        {% for task in tasks %}
+            <li>{{ task.title }} - {{ task.execution_date }}</li>
+        {% endfor %}
+    </ul>
 </body>
 </html>

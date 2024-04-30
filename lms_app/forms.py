@@ -24,9 +24,3 @@ class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
         fields = ['title', 'description', 'execution_date']
-
-
-class TaskSubmissionForm(forms.ModelForm):
-    class Meta:
-        model = Task
-        fields = ['submission_file', 'submission_description']

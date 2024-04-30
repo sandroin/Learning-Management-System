@@ -53,11 +53,5 @@ class CustomUser(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-    def is_student(self):
-        return self.status == Status.student
-
-    def is_lecturer(self):
-        return self.status == Status.lecturer
-
     def __str__(self):
         return self.email

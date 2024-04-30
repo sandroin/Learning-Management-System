@@ -11,6 +11,4 @@ urlpatterns = [
     path('task-list/', views.task_list, name='task_list'),
     path('select-subject/', views.select_subject, name='select_subject'),
     path('record-attendance/<int:subject_id>/', views.record_attendance, name='record_attendance'),
-    path('submit_task/<int:task_id>/', views.submit_task, name='submit_task'),
-    path('submit_task/', views.submit_task, name='submit_task_default'),
 ]
