@@ -82,7 +82,7 @@ class AttendanceRecord(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, verbose_name=_('Subject'))
     date = models.DateField(verbose_name=_("Date"))
 
-    def __str__(self):
+   def __str__(self):
         return "Attendance of " + str(self.subject) + " on " + str(self.date)
 
     class Meta:
